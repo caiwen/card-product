@@ -6,6 +6,34 @@ class CardFactory:
     def __init__(self, saveFolder=None):
         self.saveFolder = saveFolder
 
+    def productCode(self, codeText, bgGround=None, fontSize=800, preView=True):
+        # 背景图片
+        background = "background2.jpg"
+        if bgGround is not None:
+            background = bgGround
+        backImg = Image.open(background)  # 这里是背景图片
+        backImgW, backImgH = backImg.size
+        ttfront = ImageFont.truetype('FZDHTJW2.TTF', fontSize)  # 字体大小
+
+        ttfrontSize = ttfront.getsize(codeText)
+        draw = ImageDraw.Draw(backImg)
+        fw = ttfrontSize[0]
+        fh = ttfrontSize[1]
+        fw = int((backImgW - fw) / 2)
+        fh = int((backImgH - fh) / 2)
+        draw.text((fw, fh), codeText, fill=(255, 255, 255), font=ttfront)
+        # backImg.show()  # 显示图片,可以通过save保存
+        if self.saveFolder is None:
+            savePath = codeText + "-line.png"
+        else:
+            savePath = self.saveFolder + "/" + codeText + "-line.png"
+        if preView is True:
+            backImg.show()
+            return None
+        else:
+            backImg.save(savePath)
+            return backImg
+
     def product(self, codeText, bgGround=None, fontSize=120, qrcodeSize=8, preView=True):
         # qr对象
         qr = qrcode.QRCode(version=5, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=qrcodeSize, border=1)
@@ -48,4 +76,5 @@ class CardFactory:
 if __name__ == '__main__':
     # card = CardFactory('F:/采集卡')
     card = CardFactory()
-    card.product('2-EE000002')
+    # card.product('2-EE000002')
+    card.productCode('2-EE000002')

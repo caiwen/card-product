@@ -26,7 +26,7 @@ class CardProduct(QWidget):
         self.resize(500, 300)  # 设置窗体大小
 
         pIntvalidator = QIntValidator(self)
-        pIntvalidator.setRange(1, 500)
+        pIntvalidator.setRange(1, 1000)
 
         fontSize = QLabel('设置字体大小:')
         self.fontSizeEdit = QLineEdit()
@@ -42,6 +42,9 @@ class CardProduct(QWidget):
         self.btn_backGround = QPushButton(self)
         self.btn_backGround.setObjectName("btn_backGround")
         self.btn_backGround.setText("选择背景图片")
+
+        self.isCreQr = QCheckBox('生成二维码', self)
+        self.isCreQr.toggle()
 
         # 文件选择
         self.btn_chooseFile = QPushButton(self)
@@ -71,6 +74,7 @@ class CardProduct(QWidget):
         # 设置布局
         layout = QVBoxLayout()
         layout.addWidget(self.btn_backGround)
+        layout.addWidget(self.isCreQr)
         layout.addWidget(fontSize)
         layout.addWidget(self.fontSizeEdit)
         layout.addWidget(qrCodeSize)
@@ -88,6 +92,7 @@ class CardProduct(QWidget):
         self.btn_preview.clicked.connect(self.slot_btn_preview)
         self.btn_submit.clicked.connect(self.slot_btn_submit)
         self.btn_chooseFile.clicked.connect(self.slot_btn_chooseFile)
+        self.isCreQr.stateChanged.connect(self.changeFontSize)
 
     def slot_btn_chooseFile(self):
         fileName_choose, filetype = QFileDialog.getOpenFileName(self,
@@ -129,7 +134,10 @@ class CardProduct(QWidget):
         data_frame = pd.read_excel(self.file_choose)
         data_values = data_frame.values
         i = len(data_values)
-        output_file_name = self.dir_choose + '/out.pdf'
+        if self.isCreQr.isChecked() is True:
+            output_file_name = self.dir_choose + '/out.pdf'
+        else:
+            output_file_name = self.dir_choose + '/out-line.pdf'
         imgDoc = canvas.Canvas(output_file_name)  # pagesize=letter
         imgDoc.setFillColorRGB(0, 0, 1)
         imgDoc.setPageSize(A4)
@@ -141,7 +149,10 @@ class CardProduct(QWidget):
         if self.qrCodeSizeEdit.text() != '':
             qrcodeSize = int(self.qrCodeSizeEdit.text())
         for data in data_values:
-            imgFile = card.product(data[0], self.bgground, fontSize, qrcodeSize, False)
+            if self.isCreQr.isChecked() is True:
+                imgFile = card.product(data[0], self.bgground, fontSize, qrcodeSize, False)
+            else:
+                imgFile = card.productCode(data[0], self.bgground, fontSize, False)
             image_width, image_height = imgFile.size
             image_aspect = image_height / float(image_width)
             print_width = document_width
@@ -175,7 +186,16 @@ class CardProduct(QWidget):
             fontSize = int(self.fontSizeEdit.text())
         if self.qrCodeSizeEdit.text() != '':
             qrcodeSize = int(self.qrCodeSizeEdit.text())
-        card.product('2-EE000001', self.bgground, fontSize, qrcodeSize, True)
+        if self.isCreQr.isChecked() is True:
+            card.product('2-EE000001', self.bgground, fontSize, qrcodeSize, True)
+        else:
+            card.productCode('2-EE000001', self.bgground, fontSize, True)
+
+    def changeFontSize(self):
+        if self.isCreQr.isChecked() is True:
+            self.fontSizeEdit.setText(str(120))
+        else:
+            self.fontSizeEdit.setText(str(800))
 
 
 if __name__ == "__main__":
