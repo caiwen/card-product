@@ -6,7 +6,7 @@ class CardFactory:
     def __init__(self, saveFolder=None):
         self.saveFolder = saveFolder
 
-    def productCode(self, codeText, bgGround=None, fontSize=800, preView=True):
+    def productCode(self, codeText, bgGround=None, fontSize=800, preView=True, textW=0, textH=0):
         # 背景图片
         background = "background2.jpg"
         if bgGround is not None:
@@ -19,9 +19,9 @@ class CardFactory:
         draw = ImageDraw.Draw(backImg)
         fw = ttfrontSize[0]
         fh = ttfrontSize[1]
-        fw = int((backImgW - fw) / 2)
-        fh = int((backImgH - fh) / 2)
-        draw.text((fw, fh), codeText, fill=(255, 255, 255), font=ttfront)
+        fw = (backImgW - fw) / 2
+        fh = (backImgH - fh) / 2
+        draw.text((fw + textW, fh + textH), codeText, fill=(255, 255, 255), font=ttfront)
         # backImg.show()  # 显示图片,可以通过save保存
         if self.saveFolder is None:
             savePath = codeText + "-line.png"
@@ -34,7 +34,7 @@ class CardFactory:
             backImg.save(savePath)
             return backImg
 
-    def product(self, codeText, bgGround=None, fontSize=120, qrcodeSize=8, preView=True):
+    def product(self, codeText, bgGround=None, fontSize=120, qrcodeSize=8, preView=True, textW=0, textH=0):
         # qr对象
         qr = qrcode.QRCode(version=5, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=qrcodeSize, border=1)
         # 添加内容
@@ -59,7 +59,7 @@ class CardFactory:
         fh = ttfrontSize[1]
         fw = int((backImgW - fw) / 2)
         fh = int((backImgH - fh) / 2)
-        draw.text((fw, h + qrImgH), codeText, fill=(0, 25, 25), font=ttfront)
+        draw.text((fw + textW, h + qrImgH + textH), codeText, fill=(0, 25, 25), font=ttfront)
         # backImg.show()  # 显示图片,可以通过save保存
         if self.saveFolder is None:
             savePath = codeText + ".png"
@@ -76,5 +76,5 @@ class CardFactory:
 if __name__ == '__main__':
     # card = CardFactory('F:/采集卡')
     card = CardFactory()
-    # card.product('2-EE000002')
-    card.productCode('2-EE000002')
+    card.product('2-EE000002',textW=0,textH=20)
+    #card.productCode('2-EE000002',textW=0,textH=-50)

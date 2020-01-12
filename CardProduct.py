@@ -1,20 +1,13 @@
 import sys
-import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon, QIntValidator, QDoubleValidator, QRegExpValidator
 from CardFactory import CardFactory
+from PyQt5.QtCore import Qt
 import pandas as pd
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch, cm
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, PageBreak
 from reportlab.lib.pagesizes import A4, A3, A2, A1, legal, landscape
 from reportlab.lib.utils import ImageReader
-import PIL.Image, PIL.ExifTags
-from os import listdir
-import os, re
-import time
-from reportlab.lib.units import inch
+import os
 
 
 class CardProduct(QWidget):
@@ -23,15 +16,28 @@ class CardProduct(QWidget):
         self.setWindowTitle(name)
         self.setWindowIcon(QIcon('log2.ico'))
         self.cwd = os.getcwd()  # 获取当前程序文件位置
-        self.resize(500, 300)  # 设置窗体大小
+        self.resize(500, 800)  # 设置窗体大小
 
         pIntvalidator = QIntValidator(self)
-        pIntvalidator.setRange(1, 1000)
+        pIntvalidator.setRange(1, 3000)
 
         fontSize = QLabel('设置字体大小:')
         self.fontSizeEdit = QLineEdit()
         self.fontSizeEdit.setValidator(pIntvalidator)
         self.fontSizeEdit.setText(str(120))
+
+        textPosionWText = QLabel('调整文字左右距离:')
+        textPosionHText = QLabel('调整文字上下距离:')
+        self.textPosionW = QSlider(Qt.Horizontal)
+        self.textPosionW.setMinimum(-150)
+        self.textPosionW.setMaximum(150)
+        self.textPosionW.setSingleStep(1)
+        self.textPosionW.setTickPosition(QSlider.TicksBelow)
+        self.textPosionH = QSlider(Qt.Vertical)
+        self.textPosionH.setMinimum(-150)
+        self.textPosionH.setMaximum(150)
+        self.textPosionH.setSingleStep(1)
+        self.textPosionH.setTickPosition(QSlider.TicksRight)
 
         qrCodeSize = QLabel('设置二维码大小:')
         self.qrCodeSizeEdit = QLineEdit()
@@ -79,6 +85,10 @@ class CardProduct(QWidget):
         layout.addWidget(self.fontSizeEdit)
         layout.addWidget(qrCodeSize)
         layout.addWidget(self.qrCodeSizeEdit)
+        layout.addWidget(textPosionWText)
+        layout.addWidget(self.textPosionW)
+        layout.addWidget(textPosionHText)
+        layout.addWidget(self.textPosionH)
         layout.addWidget(self.btn_chooseFile)
         layout.addWidget(self.btn_chooseDir)
         layout.addWidget(self.btn_preview)
@@ -144,15 +154,17 @@ class CardProduct(QWidget):
         document_width, document_height = A4
         fontSize = 120
         qrcodeSize = 8
+        textW = self.textPosionW.value()
+        textH = self.textPosionH.value()
         if self.fontSizeEdit.text() != '':
             fontSize = int(self.fontSizeEdit.text())
         if self.qrCodeSizeEdit.text() != '':
             qrcodeSize = int(self.qrCodeSizeEdit.text())
         for data in data_values:
             if self.isCreQr.isChecked() is True:
-                imgFile = card.product(data[0], self.bgground, fontSize, qrcodeSize, False)
+                imgFile = card.product(data[0], self.bgground, fontSize, qrcodeSize, False, textW, textH)
             else:
-                imgFile = card.productCode(data[0], self.bgground, fontSize, False)
+                imgFile = card.productCode(data[0], self.bgground, fontSize, False, textW, textH)
             image_width, image_height = imgFile.size
             image_aspect = image_height / float(image_width)
             print_width = document_width
@@ -182,14 +194,16 @@ class CardProduct(QWidget):
         card = CardFactory()
         fontSize = 120
         qrcodeSize = 8
+        textW = self.textPosionW.value()
+        textH = self.textPosionH.value()
         if self.fontSizeEdit.text() != '':
             fontSize = int(self.fontSizeEdit.text())
         if self.qrCodeSizeEdit.text() != '':
             qrcodeSize = int(self.qrCodeSizeEdit.text())
         if self.isCreQr.isChecked() is True:
-            card.product('2-EE000001', self.bgground, fontSize, qrcodeSize, True)
+            card.product('2-EE000001', self.bgground, fontSize, qrcodeSize, True, textW, textH)
         else:
-            card.productCode('2-EE000001', self.bgground, fontSize, True)
+            card.productCode('2-EE000001', self.bgground, fontSize, True, textW, textH)
 
     def changeFontSize(self):
         if self.isCreQr.isChecked() is True:
