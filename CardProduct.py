@@ -13,12 +13,16 @@ import os
 class CardProduct(QWidget):
     def __init__(self, name='MainForm'):
         super(CardProduct, self).__init__()
+        # 设置软件窗口的标题
         self.setWindowTitle(name)
+        # 设置软件的logo图片
         self.setWindowIcon(QIcon('log2.ico'))
         self.cwd = os.getcwd()  # 获取当前程序文件位置
         self.resize(500, 800)  # 设置窗体大小
 
+        # 验证类
         pIntvalidator = QIntValidator(self)
+        #  数字可选范围
         pIntvalidator.setRange(1, 3000)
 
         fontSize = QLabel('设置字体大小:')
